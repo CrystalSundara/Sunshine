@@ -1,8 +1,10 @@
 package com.example.android.sunshine.app;
 
+import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -11,6 +13,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
@@ -62,8 +65,7 @@ public class ForecastFragment extends Fragment {
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_refresh) {
-            FetchWeatherTask weatherTask = new FetchWeatherTask();
-            weatherTask.execute("New Paltz,us");
+            updateWeather();
             return true;
         }
         return super.onOptionsItemSelected(item);
@@ -72,6 +74,16 @@ public class ForecastFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+
+        // The ARrayAdapter will take data from a source and
+        // use it to populate the ListView it's attached to
+        mForecastAdapter =
+                new ArrayAdapter<String>(
+                        getActivity(), // The current context (this activity)
+                        R.layout.list_item_forecast, // The name of the layout ID.
+                        R.id.list_item_forecast_textview, //The ID of the textview to populate
+                        new ArrayList<String>());
+
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
 
         // Once the root view for the Fragment has been created, it's time to populate
@@ -80,7 +92,7 @@ public class ForecastFragment extends Fragment {
         // Create some dummy data for the ListView. Here's a sample weekly forecast
         // represented as "day, weather, high/low"
 
-        String[] forecastArray = {
+        /*String[] forecastArray = {
                 "Today = Sunny - 88/63",
                 "Tomorrow - Foggy - 70/40",
                 "Weds - Cloudy - 72/63",
@@ -88,7 +100,7 @@ public class ForecastFragment extends Fragment {
                 "Fri - Heavy Rain - 65/56",
                 "Sat - HELP TRAPPED IN A WEATHER STATION - 60/51",
                 "Sun - Sunny - 80/68"
-        };
+        };*/
 
         List<String> weekForecast = new ArrayList<String>(
                 Arrays.asList(forecastArray)
@@ -115,12 +127,34 @@ public class ForecastFragment extends Fragment {
                 R.id.listview_forecast
         );
         listView.setAdapter(mForecastAdapter);
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                String forecast = mForecastAdapter.getItem(position);
+                Intent intent = new Intent(getActivity(), DetailActivity.class)
+                        .putExtra(Intent.EXTRA_TEXT, forecast);
+                startActivity(intent);
+            }
+        });
 
 
 
         return rootView;
     }
 
+    private void updateWeather() {
+        FetchWeatherTask weatherTask = new FetchWeatherTask();
+        String location = PreferenceManager.getDefaultSharedPreferences(getActivity())
+                .getString(getString(R.string.pref_location_key),
+                        getString(R.string.pref_location_default));
+        weatherTask.execute(location);
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        updateWeather();
+    }
     public class FetchWeatherTask extends AsyncTask<String, Void, String[]> {
         private final String LOG_TAG = FetchWeatherTask.class.getSimpleName();
 
