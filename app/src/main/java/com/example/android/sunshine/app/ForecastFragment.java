@@ -29,9 +29,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
-import java.util.List;
 
 /**
  * Created by Crystal on 2/8/2015.
@@ -100,7 +98,7 @@ public class ForecastFragment extends Fragment {
                 "Fri - Heavy Rain - 65/56",
                 "Sat - HELP TRAPPED IN A WEATHER STATION - 60/51",
                 "Sun - Sunny - 80/68"
-        };*/
+        };
 
         List<String> weekForecast = new ArrayList<String>(
                 Arrays.asList(forecastArray)
@@ -121,7 +119,7 @@ public class ForecastFragment extends Fragment {
                         // Forecast data
                         weekForecast
                 );
-
+        */
         // Get a reference to the ListView, and attach this adapter to the list view
         ListView listView = (ListView) rootView.findViewById(
                 R.id.listview_forecast
